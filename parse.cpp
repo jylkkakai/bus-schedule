@@ -15,40 +15,29 @@
 //   }
 //   return false;
 // }
-void get_data(const std::string url, const std::string key,
-              std::vector<std::string> &out_str) {
+json get_data(const std::string url) {
+
+  std::string data_str = url_query(url);
+  auto data_json = json::parse(data_str);
+  if (data_json["body"].empty())
+    throw std::runtime_error("get_data(): empty body!\n");
+
+  return data_json["body"];
+}
+
+void parse_stop_points(std::string url, std::vector<std::string> &stop_points) {
   try {
-    std::string data_str = url_query(url);
-    auto stop_points_json = json::parse(data_str);
-    if (stop_points_json["body"].empty()) {
-      throw std::runtime_error("Data " + key + " not found!\n");
-    }
-    for (auto el : stop_points_json["body"]) {
-      out_str.push_back(el[key]);
+
+    std::string key = "shortName";
+
+    auto data_json = get_data(url);
+    for (auto el : data_json) {
+      stop_points.push_back(el[key]);
     }
   } catch (const std::exception &e) {
-    std::cerr << "Failed to parse stop-points: " << e.what() << std::endl;
+    std::cerr << "ERROR: parse_stop_points(): " << e.what() << std::endl;
   }
 }
-//
-// void parse_stop_points(std::string stop_name,
-//                        std::vector<std::string> &stop_points) {
-//   try {
-//     std::string stop_points_str = url_query(
-//         "https://data.itsfactory.fi/journeys/api/1/stop-points?name=" +
-//         stop_name);
-//     // get_data(stop_points_str, "shortName", stop_points);
-//     // auto stop_points_json = json::parse(stop_points_str);
-//     // if (stop_points_json["body"].empty()) {
-//     //   throw std::runtime_error("Stop " + stop_name + " not found!\n");
-//     // }
-//     // for (auto el : stop_points_json["body"]) {
-//     //   stop_points.push_back(el["shortName"]);
-//     // }
-//   } catch (const std::exception &e) {
-//     std::cerr << "Failed to parse stop-points: " << e.what() << std::endl;
-//   }
-// }
 // void parse_routes(const std::vector<std::string> stop_points,
 //                   std::vector<std::string> &routes) {
 //   try {

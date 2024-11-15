@@ -7,8 +7,7 @@
 using json = nlohmann::json;
 
 bool object_has(json obj, std::string key, std::string value);
-void get_data(const std::string url, const std::string key,
-              std::vector<std::string> &out_str);
+json get_data(const std::string url);
 void parse_stop_points(const std::string stop_name,
                        std::vector<std::string> &stop_points);
 void parse_routes(const std::string stop_points,
