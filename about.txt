@@ -1,0 +1,67 @@
+
+Query Parameter Reference
+
+Below you can find allowed query parameters by Journeys API url.
+
+api/1/lines
+	- description : String
+
+api/1/routes
+	- lineId : String
+	- name : String
+
+api/1/journey-patterns
+	- lineId : String
+	- name : String
+	- firstStopPointId : String
+	- lastStopPointId : String
+	- stopPointId : String
+
+api/1/journeys
+	- lineId : String
+	- routeId : String
+	- journeyPatternId : String
+	- dayTypes : comma separated list of: monday, tuesday, wednesday, friday, saturday, sunday
+	- departureTime : hh:mm
+	- arrivalTime : hh:mm
+	- firstStopPointId : String
+	- lastStopPointId : String
+	- stopPointId : String
+        - gtfsTripId: String
+
+api/1/stop-points
+	- name: String 
+	- location: lat,lon or lat1,lon1:lat2,lon2 (upper left corner of a box : lower right corner of a box)
+	- tariffZone : one of: 1,2,3,S (http://joukkoliikenne.tampere.fi/fi/muutokset-tampereen-seudun-joukkoliikenteessa-30.6.2014/tariffijarjestelma-ja-vyohykejako.html)
+	- municipalityName: String
+	- municipalityShortName: String
+
+api/1/municipalities
+	- name: String
+	- shortName: String
+
+api/1/vehicle-activity
+	- lineRef: String or comma separated list of strings with * as wildcard, for example: lineRef=3 or lineRef=3,1*
+	- vehicleRef: String or comma separated list of strings with * as wildcard (see lineRef)
+	- journeyRef: String or comma separated list of strings with * as wildcard (see lineRef)
+ 	- directionRef: String, choice of 1 or 2
+
+
+Field Exclusion
+
+Journeys API allows exclusion of returned fields depending on the end point. Below are list of end points which allow field exclusion.
+
+api/1/journey-patterns
+        - exclusions: stopPoints, journeys
+api/1/journeys
+        - exclusions: calls
+api/1/routes
+        - exclusions: journeyPatterns, journeys, geographicCoordinateProjection
+
+For each end point a single or multiple exclusion can be used. Multiple exclusions are separated by comma. For example a client might call:
+
+    http://data.itsfactory.fi/journeys/api/1/routes?exclude-fields=journeys
+    http://data.itsfactory.fi/journeys/api/1/routes?exclude-fields=journeys,journeyPatterns
+    http://data.itsfactory.fi/journeys/api/1/routes?exclude-fields=journeys,journeyPatterns,geographicCoordinateProjection
+
+Also the vehicle-activity end point support field exclusion, please see that section for details on field exclusion on vehicle-activity end point 
