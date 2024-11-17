@@ -19,4 +19,5 @@ void parse_journeys(const std::string stop_points,
 void parse_journey_patternd(const std::string stop_points,
                             std::vector<std::string> &journey_patterns);
 
+void print_keys(json j);
 #endif // PARSE_H_
