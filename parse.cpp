@@ -47,18 +47,14 @@ void print_departure_times(std::vector<std::string> stop_points, int n) {
 
     std::cout << sp + " Ruskeepaa" << std::endl;
     std::cout << "73B" << std::endl;
+
     for (auto journey : journeys) {
-      // std::cout << journey["calls"].size() << std::endl;
-      // print_keys(journey);
       if (journey["dayTypes"][0] == "sunday") {
-        // std::cout << journey["dayTypes"] << std::endl;
-        // break;
         for (auto call : journey["calls"]) {
 
           if (call["stopPoint"]["shortName"] == sp &&
               call["departureTime"] > "15:00:00") {
             times.insert(call["departureTime"]);
-            // std::cout << call["departureTime"] << std::endl;
           }
         }
       }
@@ -69,10 +65,5 @@ void print_departure_times(std::vector<std::string> stop_points, int n) {
       std::cout << "\t" << *it << std::endl;
     }
     times.clear();
-    // print_keys(json[0]);
-
-    // for (auto call : json["call"]) {
-    // std::cout << json[0]["calls"].dump(4) << std::endl;
-    std::cout << journeys.size() << std::endl;
   }
 }
