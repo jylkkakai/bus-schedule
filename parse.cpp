@@ -2,7 +2,7 @@
 #include "query.h"
 #include <algorithm>
 #include <iostream>
-#include <set>
+#include <map>
 
 json get_data(const std::string url) {
 
@@ -17,19 +17,45 @@ json get_data(const std::string url) {
 
   } catch (const std::exception &e) {
 
-    std::cerr << "ERROR: parse_stop_points(): " << e.what() << std::endl;
+    std::cerr << "ERROR: Failed to get " + url + ": " << e.what() << std::endl;
     exit(1);
   }
 }
 
-void parse_stop_points(std::string url, std::vector<std::string> &stop_points) {
+void get_stop_point_short_name(std::string stop_name,
+                               std::vector<StopPoint> &stop_points) {
 
-  std::string key = "shortName";
+  std::string short_name = "shortName";
+
+  auto data_json =
+      get_data("https://data.itsfactory.fi/journeys/api/1/stop-points?name=" +
+               stop_name);
+  for (auto el : data_json) {
+    StopPoint stop_point;
+    stop_point.short_name = el[short_name];
+    stop_points.push_back(stop_point);
+  }
+}
+
+void get_stop_point_name(std::vector<StopPoint> &stop_points) {
+
+  std::string name = "name";
+
+  for (auto &stop : stop_points) {
+    auto data_json = get_data(
+        "https://data.itsfactory.fi/journeys/api/1/stop-points?shortName=" +
+        stop.short_name);
+    stop.name = data_json[0]["name"];
+  }
+}
+void get_line(std::string url, Line &line) {
+
+  // std::string short_name = "shortName";
 
   auto data_json = get_data(url);
-  for (auto el : data_json) {
-    stop_points.push_back(el[key]);
-  }
+  // std::cout << .dump(4);
+  line.description = data_json[0]["description"];
+  line.name = data_json[0]["name"];
 }
 
 void print_keys(json j) {
@@ -38,31 +64,42 @@ void print_keys(json j) {
   }
 }
 
-void print_departure_times(std::vector<std::string> stop_points, int n) {
+void print_departure_times(std::vector<StopPoint> &stop_points, int n) {
+
+  get_stop_point_name(stop_points);
+
   std::string journeys_url =
       "https://data.itsfactory.fi/journeys/api/1/journeys?stopPointId=";
-  std::set<std::string> times;
+  std::map<std::string, Line> times;
   for (auto sp : stop_points) {
-    auto journeys = get_data(journeys_url + sp); // + "&dayTypes=sunday");
+    auto journeys = get_data(journeys_url + sp.short_name + "&dayTypes=friday");
 
-    std::cout << sp + " Ruskeepaa" << std::endl;
-    std::cout << "73B" << std::endl;
+    // print_keys(journeys[0]);
+    // std::cout << journeys["lineUrl"] << std::endl;
+    std::cout << "Stop: \t" + sp.short_name + " " + sp.name << std::endl;
+    // std::cout << "Line: \t" + sp.line_name + " " + sp.line_description
+    // << std::endl;
 
     for (auto journey : journeys) {
-      if (journey["dayTypes"][0] == "sunday") {
-        for (auto call : journey["calls"]) {
+      // if (/*journey["dayTypes"][0] == "monday" ||*/
+      //     journey["dayTypes"][0] == "friday") {
+      Line line;
+      get_line(journey["lineUrl"], line);
+      for (auto call : journey["calls"]) {
 
-          if (call["stopPoint"]["shortName"] == sp &&
-              call["departureTime"] > "15:00:00") {
-            times.insert(call["departureTime"]);
-          }
+        if (call["stopPoint"]["shortName"] == sp.short_name /*&&
+              call["departureTime"] > "13:00:00"*/) {
+          times.insert({call["departureTime"], line});
         }
       }
+      // }
     }
     auto its = times.begin();
     std::advance(its, std::min(int(times.size()), n));
     for (auto it = times.begin(); it != its; it++) {
-      std::cout << "\t" << *it << std::endl;
+      std::cout << "\t" + it->first + " " + it->second.name + " " +
+                       it->second.description
+                << std::endl;
     }
     times.clear();
   }
