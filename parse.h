@@ -9,9 +9,12 @@ struct StopPoint {
   std::string short_name;
 };
 struct Line {
-
   std::string name;
   std::string description;
+};
+struct DayTime {
+  std::string day;
+  std::string time;
 };
 
 using json = nlohmann::json;
@@ -35,4 +38,5 @@ void get_line(std::string url, Line &line);
 void print_departure_times(std::vector<StopPoint> &stop_points, int n);
 
 void print_keys(json j);
+DayTime get_time();
 #endif // PARSE_H_
